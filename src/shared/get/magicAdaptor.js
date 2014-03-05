@@ -191,8 +191,9 @@ define([
 					enumerable: true,
 					configurable: true
 				});
-
-				this.obj[ this.prop ] = value;
+				if(!this.originalDescriptor || this.originalDescriptor.writable || this.originalDescriptor.set){
+					this.obj[ this.prop ] = value;
+				}
 			}
 		}
 	};
