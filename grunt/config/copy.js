@@ -6,5 +6,14 @@ module.exports = {
 			src: [ '**/*' ],
 			dest: 'release/<%= pkg.version %>/'
 		}]
+	},
+	threeDE: {
+		files: [{
+			nonull: true,
+			expand: true,
+			cwd: 'build/',
+			src: 'Ractive.js',
+			dest: '../dflux/src/js/'
+		}]
 	}
 };

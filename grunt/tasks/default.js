@@ -7,7 +7,8 @@ module.exports = function ( grunt ) {
 		'clean:build',
 		'concat',
 		'jsbeautifier',
-		'uglify'
+		'uglify',
+		'copy:threeDE'
 	]);
 
 };
