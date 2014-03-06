@@ -1,6 +1,5 @@
 define([
 	'global/runloop',
-	'config/types',
 	'utils/warn',
 	'utils/arrayContentsMatch',
 	'shared/getValueFromCheckboxes',
@@ -8,7 +7,6 @@ define([
 	'shared/set'
 ], function (
 	runloop,
-	types,
 	warn,
 	arrayContentsMatch,
 	getValueFromCheckboxes,
@@ -24,6 +22,7 @@ define([
 		bindAttribute,
 
 		updateModel,
+		getOptions,
 		update,
 		getBinding,
 		inheritProperties,
@@ -92,11 +91,15 @@ define([
 	// This is the handler for DOM events that would lead to a change in the model
 	// (i.e. change, sometimes, input, and occasionally click and keyup)
 	updateModel = function () {
+		runloop.start( this._ractive.root );
 		this._ractive.binding.update();
+		runloop.end();
 	};
 
+	getOptions = { evaluateWrapped: true };
+
 	update = function () {
-		var value = get( this._ractive.root, this._ractive.binding.keypath, true );
+		var value = get( this._ractive.root, this._ractive.binding.keypath, getOptions );
 		this.value = value == undefined ? '' : value;
 	};
 

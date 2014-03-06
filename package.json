@@ -1,7 +1,7 @@
 {
   "name": "ractive",
   "description": "Next-generation DOM manipulation",
-  "version": "0.4.0-pre",
+  "version": "0.4.0-pre1",
   "homepage": "http://ractivejs.org",
   "main": "build/Ractive.js",
   "keywords": [
@@ -21,6 +21,7 @@
     }
   ],
   "jam": {
+    "name": "Ractive",
     "main": "Ractive.js",
     "include": [
       "Ractive.js",
@@ -75,6 +76,7 @@
     "amdclean": "~1.2.1",
     "cheerio": "~0.13.0",
     "promises-aplus-tests": "*",
+    "grunt-git-describe": "~2.3.2",
     "grunt-jsbeautifier": "~0.2.6"
   },
   "testling": {

@@ -1,12 +1,18 @@
 define([
 	'utils/isEqual',
+	'utils/Promise',
+	'utils/normaliseKeypath',
 	'shared/animations',
+	'shared/get/_get',
 	'Ractive/prototype/animate/Animation'
 ],
 
 function (
 	isEqual,
+	Promise,
+	normaliseKeypath,
 	animations,
+	get,
 	Animation
 ) {
 
@@ -19,7 +25,9 @@ function (
 
 	return function ( keypath, to, options ) {
 
-		var k,
+		var promise,
+			fulfilPromise,
+			k,
 			animation,
 			animations,
 			easing,
@@ -31,6 +39,8 @@ function (
 			collectValue,
 			dummy,
 			dummyOptions;
+
+		promise = new Promise( function ( fulfil ) { fulfilPromise = fulfil; });
 
 		// animate multiple keypaths
 		if ( typeof keypath === 'object' ) {
@@ -122,20 +132,28 @@ function (
 		// animate a single keypath
 		options = options || {};
 
+		if ( options.complete ) {
+			promise.then( options.complete );
+		}
+
+		options.complete = fulfilPromise;
 		animation = animate( this, keypath, to, options );
 
-		return {
-			stop: function () {
-				animation.stop();
-			}
+		promise.stop = function () {
+			animation.stop();
 		};
+		return promise;
 	};
 
 	function animate ( root, keypath, to, options ) {
 		var easing, duration, animation, from;
 
+		if ( keypath ) {
+			keypath = normaliseKeypath( keypath );
+		}
+
 		if ( keypath !== null ) {
-			from = root.get( keypath );
+			from = get( root, keypath );
 		}
 
 		// cancel any existing animation
@@ -145,7 +163,7 @@ function (
 		// don't bother animating values that stay the same
 		if ( isEqual( from, to ) ) {
 			if ( options.complete ) {
-				options.complete( 1, options.to );
+				options.complete( options.to );
 			}
 
 			return noAnimation;

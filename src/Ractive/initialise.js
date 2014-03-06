@@ -7,12 +7,12 @@ define([
 	'utils/create',
 	'utils/extend',
 	'utils/fillGaps',
-	'utils/defineProperty',
 	'utils/defineProperties',
 	'utils/getElement',
 	'utils/isObject',
 	'utils/isArray',
 	'utils/getGuid',
+	'utils/Promise',
 	'shared/get/magicAdaptor',
 	'parse/_parse'
 ], function (
@@ -24,12 +24,12 @@ define([
 	create,
 	extend,
 	fillGaps,
-	defineProperty,
 	defineProperties,
 	getElement,
 	isObject,
 	isArray,
 	getGuid,
+	Promise,
 	magicAdaptor,
 	parse
 ) {
@@ -40,7 +40,7 @@ define([
 
 	return function initialiseRactiveInstance ( ractive, options ) {
 
-		var template, templateEl, parsedTemplate;
+		var template, templateEl, parsedTemplate, promise, fulfilPromise;
 
 		if ( isArray( options.adaptors ) ) {
 			warn( 'The `adaptors` option, to indicate which adaptors should be used with a given Ractive instance, has been deprecated in favour of `adapt`. See [TODO] for more information' );
@@ -101,9 +101,6 @@ define([
 			// two-way bindings
 			_twowayBindings: { value: {} },
 
-			// transition manager
-			_transitionManager: { value: null, writable: true },
-
 			// animations (so we can stop any in progress at teardown)
 			_animations: { value: [] },
 
@@ -121,7 +118,10 @@ define([
 			_childInitQueue: { value: [] },
 
 			// data changes
-			_changes: { value: [] }
+			_changes: { value: [] },
+
+			// failed lookups, when we try to access data from ancestor scopes
+			_unresolvedImplicitDependencies: { value: [] }
 		});
 
 		// If this is a component, store a reference to the parent
@@ -228,7 +228,12 @@ define([
 			ractive.el.innerHTML = '';
 		}
 
-		ractive.render( ractive.el, options.complete );
+		promise = new Promise( function ( fulfil ) { fulfilPromise = fulfil; });
+		ractive.render( ractive.el, fulfilPromise );
+
+		if ( options.complete ) {
+			promise.then( options.complete.bind( ractive ) );
+		}
 
 		// reset transitionsEnabled
 		ractive.transitionsEnabled = options.transitionsEnabled;

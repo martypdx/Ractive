@@ -1,13 +1,11 @@
 define([
 	'circular',
-	'global/failedLookups',
 	'shared/createComponentBinding',
-	'Ractive/prototype/shared/replaceData'
+	'shared/set'
 ], function (
 	circular,
-	failedLookups,
 	createComponentBinding,
-	replaceData
+	set
 ) {
 
 	'use strict';
@@ -22,10 +20,6 @@ define([
 		var parent, fragment, keypathToTest, value;
 
 		parent = child._parent;
-
-		if ( failedLookups( child._guid + keypath ) ) {
-			return;
-		}
 
 		fragment = child.component.parentFragment;
 		do {
@@ -47,13 +41,10 @@ define([
 			createLateComponentBinding( parent, child, keypath, keypath, value );
 			return value;
 		}
-
-		// Short-circuit this process next time
-		failedLookups.add( child._guid + keypath );
 	};
 
 	function createLateComponentBinding ( parent, child, parentKeypath, childKeypath, value ) {
-		replaceData( child, childKeypath, value );
+		set( child, childKeypath, value, true );
 		createComponentBinding( child.component, parent, parentKeypath, childKeypath );
 	}
 
