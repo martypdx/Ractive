@@ -596,7 +596,6 @@ define([ 'Ractive' ], function ( Ractive ) {
 				template: '{{status()}}'
 			});
 
-			// YOUR CODE GOES HERE
 			ractive = new Ractive({
 				el: fixture,
 				template: '{{status()}}-<widget/>',
@@ -619,7 +618,6 @@ define([ 'Ractive' ], function ( Ractive ) {
 			t.htmlEqual( fixture.innerHTML, 'bar-bar' );
 		});
 
-
 		test( 'findComponent and findAllComponents work through {{>content}}', function ( t ) {
 
 		    Ractive.components.wrapper = Ractive.extend({
@@ -641,6 +639,33 @@ define([ 'Ractive' ], function ( Ractive ) {
 		    
 		    t.ok( find, 'component found' );
 		    t.equal( findAll.length, 1);
+
+		asyncTest( 'Instances with multiple components still fire complete() handlers (#486 regression)', function ( t ) {
+			var Widget, ractive, counter, done;
+
+			Widget = Ractive.extend({
+				template: 'foo',
+				complete: function () {
+					t.ok( true );
+					done();
+				}
+			});
+
+			expect( 3 );
+
+			counter = 3;
+			done = function () { --counter || start(); };
+
+			ractive = new Ractive({
+				el: fixture,
+				template: '<widget/><widget/>',
+				components: { widget: Widget },
+				complete: function () {
+					t.ok( true );
+					done();
+				}
+			});
+
 		});
 
 	};
