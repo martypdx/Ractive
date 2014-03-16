@@ -5,6 +5,9 @@ define([
 	'render/shared/updateMustache',
 	'render/shared/resolveMustache',
 	'render/DomFragment/shared/insertHtml',
+	'render/DomFragment/Component/_Component',
+	'parse/_parse',
+	//'Ractive',
 	'shared/teardown'
 ], function (
 	types,
@@ -13,6 +16,9 @@ define([
 	updateMustache,
 	resolveMustache,
 	insertHtml,
+	Component,
+	parse,
+	//Ractive,
 	teardown
 ) {
 
@@ -21,16 +27,19 @@ define([
 	var DomTriple = function ( options, docFrag ) {
 		this.type = types.TRIPLE;
 
-		if ( docFrag ) {
-			this.nodes = [];
-			this.docFrag = document.createDocumentFragment();
-		}
+		this.options = options;
+		this.docFrag = docFrag;
+
+		// if ( docFrag ) {
+		// 	this.nodes = [];
+		// 	this.docFrag = document.createDocumentFragment();
+		// }
 
 		this.initialising = true;
 		initMustache( this, options );
-		if ( docFrag ) {
-			docFrag.appendChild( this.docFrag );
-		}
+		// if ( docFrag ) {
+		// 	docFrag.appendChild( this.docFrag );
+		// }
 		this.initialising = false;
 	};
 
@@ -71,6 +80,7 @@ define([
 		render: function ( html ) {
 			var node, pNode;
 
+			/*
 			if ( !this.nodes ) {
 				// looks like we're in a server environment...
 				// nothing to see here, move along
@@ -87,10 +97,30 @@ define([
 				this.nodes = [];
 				return;
 			}
+			
 
 			// get new nodes
 			pNode = this.parentFragment.pNode;
+			*/
 
+			if(this.component) {
+				this.component.teardown(true)
+			}
+
+			//need a unique identifier instead of 'dynamic'...
+			var name = 'dynamic' + this.count;
+
+			this.options.descriptor = parse('<' + name + '/>')[0];
+
+			//should be current Component type, not Ractive...
+			this.options.parentFragment.root.components[name] = Ractive.extend({
+				template: html
+				//what else to inherit from component type...
+			});
+
+			this.component = new Component( this.options, this.docFrag )
+
+			/*
 			this.nodes = insertHtml( html, pNode.tagName, this.docFrag );
 
 			if ( !this.initialising ) {
@@ -101,6 +131,8 @@ define([
 			if ( pNode.tagName === 'SELECT' && pNode._ractive && pNode._ractive.binding ) {
 				pNode._ractive.binding.update();
 			}
+			*/
+
 		},
 
 		toString: function () {
