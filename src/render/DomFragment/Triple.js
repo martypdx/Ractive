@@ -103,22 +103,26 @@ define([
 			pNode = this.parentFragment.pNode;
 			*/
 
+
+
 			if(this.component) {
-				this.component.teardown(true)
+				this.component.teardown(true);
 			}
 
 			//need a unique identifier instead of 'dynamic'...
-			var name = 'dynamic' + this.count;
+			var name = 'dynamic';
 
 			this.options.descriptor = parse('<' + name + '/>')[0];
 
-			//should be current Component type, not Ractive...
+			//should be current Component type, not necessarily Ractive...
 			this.options.parentFragment.root.components[name] = Ractive.extend({
 				template: html
 				//what else to inherit from component type...
 			});
 
 			this.component = new Component( this.options, this.docFrag )
+
+
 
 			/*
 			this.nodes = insertHtml( html, pNode.tagName, this.docFrag );

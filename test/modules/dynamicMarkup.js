@@ -37,7 +37,7 @@ define([ 'Ractive' ], function ( Ractive ) {
 			});
 
 			t.htmlEqual( fixture.innerHTML, '<p>hello earth</p>' );
-			ractive.set('world', 'mars')
+			ractive.set('world', 'mars');
 			t.htmlEqual( fixture.innerHTML, '<p>hello mars</p>' );
 		});
 
@@ -55,7 +55,7 @@ define([ 'Ractive' ], function ( Ractive ) {
 			});
 
 			t.htmlEqual( fixture.innerHTML, '<p>hello earth</p>' );
-			ractive.set('markup', '<div>welcome to {{world}}</div>')
+			ractive.set('markup', '<div>welcome to {{world}}</div>');
 			t.htmlEqual( fixture.innerHTML, '<div>welcome to earth</div>' );
 		});
 
