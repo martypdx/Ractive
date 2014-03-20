@@ -618,28 +618,6 @@ define([ 'Ractive' ], function ( Ractive ) {
 			t.htmlEqual( fixture.innerHTML, 'bar-bar' );
 		});
 
-		test( 'findComponent and findAllComponents work through {{>content}}', function ( t ) {
-
-		    Ractive.components.wrapper = Ractive.extend({
-		        template: '<p>{{>content}}</p>'    
-		    });
-		    Ractive.components.component = Ractive.extend({});
-		                                                     
-		    var ractive = new Ractive({
-		        el: fixture,
-		        template: '<component/>'
-		    });
-		    
-		    var r = new Ractive({
-		        template: '<wrapper><component/></wrapper>'
-		    });
-		    
-		    var find = r.findComponent('component'),
-		        findAll = r.findAllComponents('component');
-		    
-		    t.ok( find, 'component found' );
-		    t.equal( findAll.length, 1);
-
 		asyncTest( 'Instances with multiple components still fire complete() handlers (#486 regression)', function ( t ) {
 			var Widget, ractive, counter, done;
 
@@ -665,66 +643,6 @@ define([ 'Ractive' ], function ( Ractive ) {
 					done();
 				}
 			});
-
-		});
-
-		test( 'findComponent and findAllComponents work through {{>content}}', function ( t ) {
-
-			var Wrapper, Component, ractive;
-
-			Component = Ractive.extend({});
-			Wrapper = Ractive.extend({
-				template: '<p>{{>content}}</p>',
-				components: {
-					component: Component
-				}
-			});
-
-			ractive = new Ractive({
-				template: '<wrapper><component/></wrapper>',
-				components: {
-					wrapper: Wrapper,
-					component: Component
-				}
-			});
-
-			var find = ractive.findComponent('component'),
-				findAll = ractive.findAllComponents('component');
-
-			t.ok( find, 'component not found' );
-			t.equal( findAll.length, 1);
-		});
-
-		test( 'Indirect changes propagate across components in magic mode (#480)', function ( t ) {
-			var Blocker, ractive, blocker;
-
-			Blocker = Ractive.extend({
-				template: '{{foo.bar.baz}}'
-			});
-
-			ractive = new Ractive({
-				el: fixture,
-				template: '<input value="{{foo.bar.baz}}"><blocker foo="{{foo}}"/>',
-				data: { foo: { bar: { baz: 50 } } },
-				magic: true,
-				components: { blocker: Blocker }
-			});
-
-			ractive.set( 'foo.bar.baz', 42 );
-			t.equal( ractive.get( 'foo.bar.baz' ), 42 );
-
-			ractive.data.foo.bar.baz = 1337;
-			t.equal( ractive.data.foo.bar.baz, 1337 );
-			t.equal( ractive.get( 'foo.bar.baz' ), 1337 );
-
-			blocker = ractive.findComponent( 'blocker' );
-
-			blocker.set( 'foo.bar.baz', 42 );
-			t.equal( blocker.get( 'foo.bar.baz' ), 42 );
-
-			blocker.data.foo.bar.baz = 1337;
-			t.equal( blocker.data.foo.bar.baz, 1337 );
-			t.equal( blocker.get( 'foo.bar.baz' ), 1337 );
 		});
 
 		test( 'findComponent and findAllComponents work through {{>content}}', function ( t ) {
