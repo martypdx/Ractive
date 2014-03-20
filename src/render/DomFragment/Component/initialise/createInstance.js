@@ -19,7 +19,7 @@ define( function () {
 			append: true,
 			data: data,
 			partials: partials,
-			magic: root.magic,
+			magic: root.magic || Component.defaults.magic,
 			modifyArrays: root.modifyArrays,
 			_parent: root,
 			_component: component,
@@ -37,7 +37,6 @@ define( function () {
 
 			// (After inserting, we need to reset the node reference)
 			instance.fragment.pNode = instance.el = parentFragment.pNode;
-			instance.fragment.parent = parentFragment;
 		}
 
 		return instance;
