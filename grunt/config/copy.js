@@ -13,7 +13,7 @@ module.exports = {
 			expand: true,
 			cwd: 'build/',
 			src: 'Ractive.js',
-			dest: '../dflux/src/js/'
+			dest: '../3DE/src/js/'
 		}]
 	}
 };
