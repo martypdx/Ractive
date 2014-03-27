@@ -1,4 +1,4 @@
-define([ 'Ractive' ], function ( Ractive ) {
+define([ 'ractive' ], function ( Ractive ) {
 
 	'use strict';
 
@@ -726,6 +726,37 @@ define([ 'Ractive' ], function ( Ractive ) {
 			t.equal( ractive.find( 'p' )._ractive.keypath, '' );
 		});
 
+		test( 'Nested components fire the init() event correctly (#511)', function ( t ) {
+			var ractive, Outer, Inner, outerInitCount = 0, innerInitCount = 0;
+
+			Inner = Ractive.extend({
+				init: function () {
+					innerInitCount += 1;
+				}
+			});
+
+			Outer = Ractive.extend({
+				template: '<inner/>',
+				init: function () {
+					outerInitCount += 1;
+				},
+				components: { inner: Inner }
+			});
+
+			ractive = new Ractive({
+				el: fixture,
+				template: '{{#foo}}<outer/>{{/foo}}',
+				data: { foo: false },
+				components: { outer: Outer }
+			});
+
+			ractive.set( 'foo', true );
+
+			// initCounts should have incremented synchronously
+			t.equal( outerInitCount, 1, '<outer/> component should call init()' );
+			t.equal( innerInitCount, 1, '<inner/> component should call init()' );
+		});
+
 		test( 'foo.bar should stay in sync between <one foo="{{foo}}"/> and <two foo="{{foo}}"/>', function ( t ) {
 			var ractive = new Ractive({
 				el: fixture,
@@ -744,6 +775,101 @@ define([ 'Ractive' ], function ( Ractive ) {
 
 			ractive.findComponent( 'two' ).set( 'foo.bar', 'qux' );
 			t.htmlEqual( fixture.innerHTML, '<p>qux</p><p>qux</p>' );
+		});
+
+		test( 'Index references propagate down to non-isolated components', function ( t ) {
+			var ractive = new Ractive({
+				el: fixture,
+				template: '{{#items:i}}<widget letter="{{.}}"/>{{/items}}',
+				data: { items: [ 'a', 'b', 'c' ] },
+				components: {
+					widget: Ractive.extend({
+						template: '<p>{{i}}: {{letter}}</p>'
+					})
+				}
+			});
+
+			t.htmlEqual( fixture.innerHTML, '<p>0: a</p><p>1: b</p><p>2: c</p>' );
+
+			ractive.get( 'items' ).splice( 1, 1 );
+			t.htmlEqual( fixture.innerHTML, '<p>0: a</p><p>1: c</p>' );
+		});
+
+		test( 'Component removed from DOM on tear-down with teardown override that calls _super', function ( t ) {
+
+			var Widget = Ractive.extend({
+					template: 'foo',
+					teardown: function(){
+						this._super();
+					}
+				});
+			var ractive = new Ractive({
+					el: fixture,
+					template: '{{#item}}<widget/>{{/item}}',
+					data: { item: {} },
+					components: {
+						widget: Widget
+					}
+				});
+
+			t.htmlEqual( fixture.innerHTML, 'foo' );
+
+			ractive.set( 'item' );
+			t.htmlEqual( fixture.innerHTML, '' );
+		});
+
+		test( 'Component names cannot include underscores (#483)', function ( t ) {
+			var Component, ractive;
+
+			expect( 1 );
+
+			Component = Ractive.extend({ template: '{{foo}}' });
+
+			try {
+				ractive = new Ractive({
+					el: fixture,
+					template: '<no_lo_dash/>',
+					components: {
+						no_lo_dash: Component
+					}
+				});
+				t.ok( false );
+			} catch ( err ) {
+				t.ok( true );
+			}
+		});
+
+		test( 'Data will propagate up through multiple component boundaries (#520)', function ( t ) {
+			var ractive, Outer, Inner, inner;
+
+			Inner = Ractive.extend({
+				template: '{{input.value}}',
+				update: function ( val ) {
+					this.set( 'input', { value: val });
+				}
+			});
+
+			Outer = Ractive.extend({
+				template: '{{#inputs}}<inner input="{{this}}"/>{{/inputs}}',
+				components: { inner: Inner }
+			});
+
+			ractive = new Ractive({
+				el: fixture,
+				template: '{{#simulation}}<outer inputs="{{inputs}}"/>{{/simulation}}',
+				components: { outer: Outer },
+				data: {
+					simulation: { inputs: [{ value: 1 }] }
+				}
+			});
+
+			t.equal( ractive.get( 'simulation.inputs[0].value' ), 1 );
+
+			inner = ractive.findComponent( 'inner' );
+
+			inner.update( 2 );
+			t.equal( ractive.get( 'simulation.inputs[0].value' ), 2 );
+			t.htmlEqual( fixture.innerHTML, '2' );
 
 		});
 

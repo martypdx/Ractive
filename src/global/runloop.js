@@ -40,8 +40,10 @@ define([
 		transitions = [],
 		observers = [],
 		attributes = [],
+		activeBindings = [],
 
 		evaluators = [],
+		computations = [],
 		selectValues = [],
 		checkboxKeypaths = {},
 		checkboxes = [],
@@ -53,10 +55,7 @@ define([
 
 	runloop = {
 		start: function ( instance, callback ) {
-			if ( instance && !instances[ instance._guid ] ) {
-				instances.push( instance );
-				instances[ instances._guid ] = true;
-			}
+			this.addInstance( instance );
 
 			if ( !flushing ) {
 				inFlight += 1;
@@ -101,6 +100,13 @@ define([
 			toFocus = node;
 		},
 
+		addInstance: function ( instance ) {
+			if ( instance && !instances[ instance._guid ] ) {
+				instances.push( instance );
+				instances[ instances._guid ] = true;
+			}
+		},
+
 		addLiveQuery: function ( query ) {
 			liveQueries.push( query );
 		},
@@ -123,6 +129,11 @@ define([
 			attributes.push( attribute );
 		},
 
+		addBinding: function ( binding ) {
+			binding.active = true;
+			activeBindings.push( binding );
+		},
+
 		scheduleCssUpdate: function () {
 			// if runloop isn't currently active, we need to trigger change immediately
 			if ( !inFlight && !flushing ) {
@@ -137,6 +148,11 @@ define([
 		addEvaluator: function ( evaluator ) {
 			dirty = true;
 			evaluators.push( evaluator );
+		},
+
+		addComputation: function ( thing ) {
+			dirty = true;
+			computations.push( thing );
 		},
 
 		addSelectValue: function ( selectValue ) {
@@ -203,6 +219,10 @@ define([
 			thing.update();
 		}
 
+		while ( thing = activeBindings.pop() ) {
+			thing.active = false;
+		}
+
 		// Change events are fired last
 		while ( thing = instances.pop() ) {
 			instances[ thing._guid ] = false;
@@ -241,6 +261,10 @@ define([
 
 		while ( dirty ) {
 			dirty = false;
+
+			while ( thing = computations.pop() ) {
+				thing.update();
+			}
 
 			while ( thing = evaluators.pop() ) {
 				thing.update().deferred = false;

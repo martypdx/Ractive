@@ -2,7 +2,7 @@ define([
 	'config/types',
 	'shared/registerDependant',
 	'shared/unregisterDependant',
-	'render/DomFragment/Section/reassignFragment' // TODO move this!
+	'shared/reassignFragment/_reassignFragment'
 ], function (
 	types,
 	registerDependant,
@@ -41,17 +41,6 @@ define([
 		registerDependant( this );
 
 		this.update();
-
-		// Special case - two-way binding to an expression that we were
-		// eventually able to substitute a regular keypath for
-		if ( this.root.twoway && this.parentFragment.owner.type === types.ATTRIBUTE ) {
-			this.parentFragment.owner.element.bind();
-		}
-
-		// TODO is there any need for this?
-		if ( this.expressionResolver && this.expressionResolver.resolved ) {
-			this.expressionResolver = null;
-		}
 	};
 
 });

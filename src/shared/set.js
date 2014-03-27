@@ -21,20 +21,29 @@ define([
 	});
 
 	function set ( ractive, keypath, value, silent ) {
-		var keys, lastKey, parentKeypath, parentValue, wrapper, evaluator, dontTeardownWrapper;
+		var keys, lastKey, parentKeypath, parentValue, computation, wrapper, evaluator, dontTeardownWrapper;
 
 		if ( isEqual( ractive._cache[ keypath ], value ) ) {
 			return;
 		}
 
+		computation = ractive._computations[ keypath ];
 		wrapper = ractive._wrapped[ keypath ];
 		evaluator = ractive._evaluators[ keypath ];
 
-		if ( wrapper && wrapper.reset ) {
-			wrapper.reset( value );
-			value = wrapper.get();
+		if ( computation && !computation.setting ) {
+			computation.set( value );
+		}
 
-			dontTeardownWrapper = true;
+		// If we have a wrapper with a `reset()` method, we try and use it. If the
+		// `reset()` method returns false, the wrapper should be torn down, and
+		// (most likely) a new one should be created later
+		if ( wrapper && wrapper.reset ) {
+			dontTeardownWrapper = ( wrapper.reset( value ) !== false );
+
+			if ( dontTeardownWrapper ) {
+				value = wrapper.get();
+			}
 		}
 
 		// Update evaluator value. This may be from the evaluator itself, or
@@ -44,7 +53,7 @@ define([
 			evaluator.value = value;
 		}
 
-		if ( !evaluator && ( !wrapper || !wrapper.reset ) ) {
+		if ( !computation && !evaluator && !dontTeardownWrapper ) {
 			keys = keypath.split( '.' );
 			lastKey = keys.pop();
 
@@ -59,7 +68,7 @@ define([
 
 				if ( !parentValue ) {
 					parentValue = createBranch( lastKey );
-					set( ractive, parentKeypath, parentValue );
+					set( ractive, parentKeypath, parentValue, true );
 				}
 
 				parentValue[ lastKey ] = value;
