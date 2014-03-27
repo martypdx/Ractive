@@ -12,7 +12,7 @@ module.exports = {
 			nonull: true,
 			expand: true,
 			cwd: 'build/',
-			src: 'Ractive.js',
+			src: 'ractive.js',
 			dest: '../3DE/src/js/'
 		}]
 	}
