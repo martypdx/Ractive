@@ -7,9 +7,9 @@ define( function () {
 			return true;
 		}
 
-		if ( typeof a === 'object' || typeof b === 'object' ) {
-			return false;
-		}
+		// if ( typeof a === 'object' || typeof b === 'object' ) {
+		// 	return false;
+		// }
 
 		return a === b;
 	};
