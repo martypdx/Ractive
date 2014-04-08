@@ -21,6 +21,21 @@ define([ 'ractive', 'samples/parse' ], function ( Ractive, tests ) {
 			runTest( tests[i] );
 		}
 
+		//TODO: create structure like above to run parsing error tests
+		test('Illegal closing section: ref mismatch', function(t){
+			throws( function(){
+				Ractive.parse( '{{#foo}}{{/bar}}' );
+			},
+			/(?=.*foo)(?=.*bar)/)
+		});
+
+		test('Illegal closing section: closing must be contained in openning', function(t){
+			throws( function(){
+				Ractive.parse( '{{#foo}}{{/foo:i}}' );
+			},
+			/(?=.*foo)(?=.*foo:i)/)
+		});
+
 	};
 
 });

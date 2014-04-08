@@ -37,21 +37,33 @@ define([
 
 		while ( next ) {
 			if ( next.mustacheType === types.CLOSING ) {
-				if ( ( normaliseKeypath( next.ref.trim() ) === this.ref ) || this.expr ) {
-					parser.pos += 1;
-					break;
-				}
-
-				else {
-					throw new Error( 'Could not parse template: Illegal closing section' );
-				}
+				validateClosing(this, next);
+				parser.pos += 1;
+				break;
 			}
 
 			this.items.push( parser.getStub() );
 			next = parser.next();
 		}
+
 	};
 
+	function validateClosing(stub, token){
+		var opening = stub.ref, 
+			closing = normaliseKeypath( token.ref.trim() );
+
+		if ( !opening || !closing ) { return; }
+
+		if( stub.indexRef ) { opening += ':' + stub.indexRef; }
+
+		if ( opening.substr( 0, closing.length) !== closing ) {
+
+			throw new Error( 'Could not parse template: Illegal closing section {{/' 
+				+ closing + '}}. Expected {{/' + stub.ref + '}}.' );
+
+		}
+	}
+						
 	SectionStub.prototype = {
 		toJSON: function ( noStringify ) {
 			var json;
@@ -76,6 +88,10 @@ define([
 
 			if ( this.expr ) {
 				json.x = this.expr.toJSON();
+			}
+
+			if ( this.keypathExpr ) {
+				json.kx = this.keypathExpr.toJSON();
 			}
 
 			if ( this.items.length ) {

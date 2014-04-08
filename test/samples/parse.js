@@ -338,6 +338,36 @@ var parseTests = [
 		name: 'Reference this is an invalid expression',
 		template: '{{0.foo}}',
 		parsed: [{t:2,r:'0.foo'}]
+	},
+	{
+		name: 'Tag with newline before attributes',
+		template: '<img\nsrc="{{foo}}">',
+		parsed: [{t:7,e:'img',a:{src:[{t:2,r:'foo'}]}}]
+	},
+	{
+		name: 'Expression section',
+		template: '{{#[1,2,3]}}{{.}}{{/}}',
+		parsed: [{"t":4,"x":{"r":[],"s":"[1,2,3]"},"f":[{"t":2,"r":"."}]}]
+	},
+	{
+		name: 'Keypath expression section',
+		template: '{{#foo[bar]}}{{.}}{{/}}',
+		parsed: [{"t":4,"kx":{"r":"foo","m":[{"t":30,"n":"bar"}]},"f":[{"t":2,"r":"."}]}]
+	},
+	{
+		name: 'List section with index ref and full closing',
+		template: '{{#foo:i}}{{.}}{{/foo:i}}',
+		parsed: [{"t":4,"r":"foo","i":"i","f":[{"t":2,"r":"."}]}] 
+	},
+	{
+		name: 'List section with index ref and ref only closing',
+		template: '{{#foo:i}}{{.}}{{/foo}}',
+		parsed: [{"t":4,"r":"foo","i":"i","f":[{"t":2,"r":"."}]}] 
+	},
+	{
+		name: 'List section with index ref and empty closing',
+		template: '{{#foo:i}}{{.}}{{/}}',
+		parsed: [{"t":4,"r":"foo","i":"i","f":[{"t":2,"r":"."}]}] 
 	}
 ];
 
