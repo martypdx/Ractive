@@ -201,6 +201,27 @@ define([ 'ractive', '../vendor/ractive-events-tap' ], function ( Ractive ) {
 			simulant.fire( ractive.nodes.foo, 'click' );
 		});
 
+		test( 'Inline multiple arguments concatenate to single argument', function ( t ) {
+			var ractive;
+
+			ractive = new Ractive({
+				el: fixture,
+				template: '<span id="foo" on-click="foo:{{foo}}{{bar}}, {{foo}} {{bar}}">click me</span>',
+				data: { foo: 'flop', bar: 'bizz' }
+			});
+
+			expect( 2 );
+
+			ractive.on({
+				foo: function ( event, arg1, arg2 ) {
+					t.equal( arg1, 'flopbizz' );
+					t.equal( arg2, 'flop bizz' );
+				}
+			});
+
+			simulant.fire( ractive.nodes.foo, 'click' );
+		});
+
 		test( 'proxy events can have multiple arguments', function ( t ) {
 			var ractive;
 

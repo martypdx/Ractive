@@ -52,7 +52,9 @@ define([
 		getStringMatch: getStringMatch,
 
 		getToken: function () {
-			this.allowWhitespace();
+			if(!this.preserveWhitespace) {
+				this.allowWhitespace();
+			}
 
 			return this.getPlaceholder() ||
 			       this.getSpecial()     ||
@@ -138,27 +140,36 @@ define([
 		},
 
 		getArray: function () {
-			var result, valueToken;
+			var item, result, current, valueToken;
 
 			if ( !this.getStringMatch( '[' ) ) {
 				return null;
 			}
 
 			result = [];
+			item = [];
 
 			while ( valueToken = this.getToken() ) {
-				result.push( valueToken.v );
-
+				item.push( valueToken.v );
+				// this.preserveWhitespace = true;
+				
 				if ( this.getStringMatch( ']' ) ) {
+					if(item.length) {
+						result.push( item.length===1 ? item[0] : item.join('') );
+					}
+					// this.preserveWhitespace = false;
 					return { v: result };
 				}
 
-				if ( !this.getStringMatch( ',' ) ) {
-					return null;
-					// throw new Error( 'Unexpected token "' + this.remaining().charAt( 0 ) + '" (expected ",")' );
+				if ( this.getStringMatch( ',' ) ) {
+					result.push( item.length===1 ? item[0] : item.join('') );
+					item = [];
+					// this.preserveWhitespace = false;
 				}
+
 			}
 
+			// this.preserveWhitespace = false;
 			return null;
 		},
 
