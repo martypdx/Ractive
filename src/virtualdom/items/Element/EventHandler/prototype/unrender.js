@@ -12,4 +12,5 @@ export default function EventHandler$unrender () {
 
 	this.node._ractive.events[ this.name ] = void 0;
 	this.node = void 0;
+
 }
