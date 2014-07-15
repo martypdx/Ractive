@@ -1,4 +1,4 @@
-define([ 'ractive' ], function ( Ractive ) {
+define([ 'ractive', 'helpers/Model' ], function ( Ractive, Model ) {
 
 	'use strict';
 
@@ -1366,6 +1366,88 @@ define([ 'ractive' ], function ( Ractive ) {
 			});
 
 			component.reset( { foo: true } );
+		});
+
+		if ( Ractive.svg ) {
+			test( 'Top-level elements in components have the correct namespace (#953)', function ( t ) {
+				var ractive = new Ractive({
+					el: fixture,
+					template: '<svg><widget message="yup"/></svg>',
+					components: {
+						widget: Ractive.extend({
+							template: '<text>{{message}}</text>'
+						})
+					}
+				});
+
+				t.equal( ractive.find( 'text' ).namespaceURI, 'http://www.w3.org/2000/svg' );
+				t.htmlEqual( fixture.innerHTML, '<svg><text>yup</text></svg>' );
+			});
+		}
+
+		test( 'Component bindings propagate the underlying value in the case of adaptors (#945)', function ( t ) {
+			var Widget, ractive;
+
+			Widget = Ractive.extend({
+				adapt: [ Model.adaptor ],
+				template: '{{#model}}Title: {{title}}{{/model}}'
+			});
+
+			ractive = new Ractive({
+				el: fixture,
+				template: '{{#model}}<widget model="{{this}}"/>{{/model}}',
+				data: {
+					model: new Model({"title": "aaa", "something": ""})
+				},
+				components: {
+					widget: Widget
+				}
+			});
+
+			ractive.get("model").set("something", "anything");
+			t.ok( ractive.get( 'model' ) instanceof Model );
+		});
+
+		test( 'Implicit bindings are created at the highest level possible (#960)', function ( t ) {
+			var ractive, widget;
+
+			ractive = new Ractive({
+				el: fixture,
+				template: '<widget/>',
+				components: {
+					widget: Ractive.extend({
+						template: '<input value="{{person.first}}"/><input value="{{person.last}}"/>'
+					})
+				}
+			});
+
+			widget = ractive.findComponent( 'widget' );
+
+			widget.findAll( 'input' )[0].value = 'Buzz';
+			widget.findAll( 'input' )[1].value = 'Lightyear';
+			widget.updateModel();
+
+			t.deepEqual( ractive.get( 'person' ), { first: 'Buzz', last: 'Lightyear' });
+			t.equal( ractive.get( 'person' ), widget.get( 'person' ) );
+		});
+
+		test( 'Implicit bindings involving context (#975)', function ( t ) {
+			var ractive = new Ractive({
+				el: fixture,
+				template: '{{#context}}<widget/>{{/}}',
+				components: {
+					widget: Ractive.extend({
+						template: 'works? {{works}}'
+					})
+				},
+				data: {
+					context: {
+						works: 'yes'
+					}
+				}
+			});
+
+			t.htmlEqual( fixture.innerHTML, 'works? yes' );
 		});
 
 	};

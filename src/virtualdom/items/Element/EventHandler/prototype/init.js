@@ -21,8 +21,8 @@ export default function EventHandler$init ( element, name, template ) {
 		action = new Fragment({
 			template: action,
 			root: this.root,
-			// owner: this.element
-			owner: this
+			owner: this.element
+			// owner: this
 		});
 	}
 
