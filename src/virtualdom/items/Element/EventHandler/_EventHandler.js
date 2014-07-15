@@ -20,7 +20,6 @@ EventHandler.prototype = {
 	teardown: teardown,
 	unrender: unrender,
 	bubble: bubble,
-	getHandler: getHandler,
 	getAction: getAction
 };
 
