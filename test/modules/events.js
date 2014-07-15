@@ -550,29 +550,38 @@ define([ 'ractive' ], function ( Ractive ) {
 
 		module('No Event Listener', {
 			setup: function () {
-				// addEventListener = Element.prototype.addEventListener;
-				// Element.prototype.addEventListener = function(){
-				// 	throw new Error('addEventListener should not be called')
-				// }
+				addEventListener = Element.prototype.addEventListener;
+				Element.prototype.addEventListener = function(){
+					throw new Error('addEventListener should not be called')
+				}
 			},
 			teardown: function () {
-				// Element.prototype.addEventListener = addEventListener;
+				Element.prototype.addEventListener = addEventListener;
 			}
 		})
 
-		test( 'event do not bind when no proxy name', t => {
-			var ractive, add = Element.prototype.addEventListener;
+		test( 'Events really do not call addEventListener when no proxy name', t => {
+			var ractive, errorAdd = Element.prototype.addEventListener;
 
-			expect( 0 );
+			expect( 1 );
 
 			ractive = new Ractive({
 				el: fixture,
-				template: '<span id="test" on-click="{{foo}}" class="{{foo}}">click me</span>'
+				template: '<span id="test" on-click="{{foo}}">click me</span>'
 			});
-			ractive.on('bar', function(){
 
+			ractive.on('bar', function(){
+				t.ok( true );
 			})
-			ractive.set( 'foo', 'bar' )
+
+			simulant.fire( ractive.nodes.test, 'click' );
+
+			Element.prototype.addEventListener = addEventListener;
+			ractive.set( 'foo', 'bar' );
+			simulant.fire( ractive.nodes.test, 'click' );
+
+			Element.prototype.addEventListener = errorAdd;
+			ractive.set( 'foo', ' ' );
 			simulant.fire( ractive.nodes.test, 'click' );
 
 		});

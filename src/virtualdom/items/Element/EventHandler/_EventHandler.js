@@ -6,6 +6,7 @@ import teardown from 'virtualdom/items/Element/EventHandler/prototype/teardown';
 import unrender from 'virtualdom/items/Element/EventHandler/prototype/unrender';
 import bubble from 'virtualdom/items/Element/EventHandler/prototype/bubble';
 import getHandler from 'virtualdom/items/Element/EventHandler/prototype/getHandler';
+import getAction from 'virtualdom/items/Element/EventHandler/prototype/getAction';
 
 var EventHandler = function ( element, name, template ) {
 	this.init( element, name, template );
@@ -19,7 +20,8 @@ EventHandler.prototype = {
 	teardown: teardown,
 	unrender: unrender,
 	bubble: bubble,
-	getHandler: getHandler
+	getHandler: getHandler,
+	getAction: getAction
 };
 
 export default EventHandler;

@@ -6,6 +6,10 @@ var alreadyWarned = {}, customHandlers = {};
 export default function EventHandler$render () {
 	var name = this.name, definition;
 
+	if ( !this.getAction() ) {
+		return;
+	}
+
 	this.node = this.element.node;
 
 	if ( definition = config.registries.events.find( this.root, name ) ) {
