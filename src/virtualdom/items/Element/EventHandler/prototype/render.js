@@ -19,27 +19,12 @@ export default function EventHandler$render () {
 			}
 		}
 
-		this.node.addEventListener( name, genericHandler, false );
+		this.node.addEventListener( name, this.getHandler(), false );
 	}
 
 	// store this on the node itself, so it can be retrieved by a
 	// universal handler
 	this.node._ractive.events[ name ] = this;
-}
-
-function genericHandler ( event ) {
-	var storage, handler;
-
-	storage = this._ractive;
-	handler = storage.events[ event.type ];
-
-	handler.fire({
-		node: this,
-		original: event,
-		index: storage.index,
-		keypath: storage.keypath,
-		context: storage.root.get( storage.keypath )
-	});
 }
 
 function getCustomHandler ( name ) {
