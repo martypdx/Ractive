@@ -1,5 +1,6 @@
 import add from 'Ractive/prototype/add';
 import animate from 'Ractive/prototype/animate';
+import attach from 'Ractive/prototype/attach';
 import detach from 'Ractive/prototype/detach';
 import find from 'Ractive/prototype/find';
 import findAll from 'Ractive/prototype/findAll';
@@ -34,6 +35,7 @@ import updateModel from 'Ractive/prototype/updateModel';
 export default {
 	add: add,
 	animate: animate,
+	attach: attach,
 	detach: detach,
 	find: find,
 	findAll: findAll,

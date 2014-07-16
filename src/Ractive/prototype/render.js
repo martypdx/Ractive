@@ -33,6 +33,10 @@ export default function Ractive$render ( target, anchor ) {
 			instances.push( this );
 		}
 
+		if ( this.attach ) {
+			this.fragment.pElement = target;
+		}
+
 		if ( anchor ) {
 			target.insertBefore( this.fragment.render(), anchor );
 		} else {

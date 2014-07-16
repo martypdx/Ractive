@@ -42,7 +42,23 @@ export default function Element$render () {
 	var root = this.root, namespace, node;
 
 	namespace = getNamespace( this );
-	node = this.node = createElement( this.name, namespace );
+
+	if ( root.attach ) {
+		let index = this.index,
+			children = this.parentFragment.pElement.children,
+			candidate;
+
+		if ( index < children.length && ( candidate = children[index] ) ) {
+			//TODO: check namespace
+			if ( candidate.nodeName === this.name.toUpperCase() ) {
+				node = this.node = candidate;
+			}
+		}
+	}
+
+	if ( !node ) {
+		node = this.node = createElement( this.name, namespace );
+	}
 
 	// Is this a top-level node of a component? If so, we may need to add
 	// a data-rvcguid attribute, for CSS encapsulation
