@@ -20,6 +20,11 @@ export default function () {
 
 	str += '>';
 
+	// Special case - contenteditable
+	if ( this.getAttribute( 'contenteditable' ) !== undefined ) {
+		str += this.getAttribute( 'value' );
+	}
+
 	if ( this.fragment ) {
 		escape = ( this.name !== 'script' && this.name !== 'style' );
 		str += this.fragment.toString( escape );
@@ -38,7 +43,7 @@ function optionIsSelected ( element ) {
 
 	optionValue = element.getAttribute( 'value' );
 
-	if ( optionValue === undefined ) {
+	if ( optionValue === undefined || !element.select ) {
 		return false;
 	}
 
